@@ -1,0 +1,16 @@
+{
+  "title": "SEMAT",
+  "name": "semat",
+  "version": "0.0.1",
+  "description": "A right click menu to insert SEMAT Alphas",
+  "main": "index.js",
+  "author": "Paolo Antinori, Andrea Tarocchi",
+  "engines": {
+    "firefox": ">=38.0a1",
+    "fennec": ">=38.0a1"
+  },
+  "license": "MIT",
+  "keywords": [
+    "jetpack"
+  ]
+}
