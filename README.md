@@ -4,7 +4,7 @@ A right click menu to insert SEMAT Alphas
 
 ##### dev steps
 to run in dev: `jpm run -b /usr/bin/firefox`  
-to package: `jpm xpi
+to package: `jpm xpi`  
 to sign: `jpm sign --api-key='XXXXXXXXXXXXXX' --api-secret='XXXXXXXXXXXXXXXX' --xpi   /home/pantinor/semat/semat.xpi`
 
 ##### Dev docs:
