@@ -19,26 +19,49 @@ function findFocusedElem(document) {
   return focusedElem;
 }
 
+// Assigning a string directly to `element.innerHTML` is potentially dangerous:
+// e.g., the string can contain harmful script elements. (Additionally, Mozilla
+// won't let us pass validation with `innerHTML` assignments in place.)
+// This function provides a safer way to append a HTML string into an element.
+function saferSetInnerHTML(parentElem, htmlString) {
+  // Jump through some hoops to avoid using innerHTML...
+  debugger;
+  console.log("parent eleme: " + parentElem);
+  console.log("parent ownerDocument: " + parentElem.ownerDocument);
+  var range = parentElem.ownerDocument.createRange();
+  range.selectNodeContents(parentElem);
+
+  var docFrag = range.createContextualFragment(htmlString);
+  console.log("docFrag: " + docFrag);
+
+  range.deleteContents();
+  console.log("docFrag: " + docFrag);
+  range.insertNode(docFrag);
+  range.detach();
+};
+
+
 self.on("click", function (node, data) {
-	console.log("in click");
-	var found = findFocusedElem(document);
-	var scrollPos = found.scrollTop;
-	var strPos = found.selectionStart;
-	var front = (found.value).substring(0, strPos);  
-    var back = (found.value).substring(strPos, found.value.length); 
-    found.value = front + data + back;
-    found.selectionStart = strPos;
-    found.selectionEnd = strPos + data.length;
-    found.focus();
-    found.scrollTop = scrollPos;
-	console.log("[content script] node: " + node.innerHTML);
-	console.log("[content script] strPos: " + strPos);
-	console.log("[content script] data: " + data);	
-	//self.postMessage([node, found]);
+  console.log("in click");
+  var found = findFocusedElem(document);
+  var scrollPos = found.scrollTop;
+  var strPos = found.selectionStart;
+  var front = (found.value).substring(0, strPos);  
+  var back = (found.value).substring(strPos, found.value.length); 
+  // found.value = front + data + back;
+  saferSetInnerHTML(found, front + data + back);
+  found.selectionStart = strPos;
+  found.selectionEnd = strPos + data.length;
+  found.focus();
+  found.scrollTop = scrollPos;
+  console.log("[content script] node: " + node.innerHTML);
+  console.log("[content script] strPos: " + strPos);
+  console.log("[content script] data: " + data);  
+  //self.postMessage([node, found]);
 });
 
 // self.on("context", function (node) {
-// 	console.log("in context");
+//  console.log("in context");
 //     console.log(node.nodeName);
 //     self.postMessage([node]);
 //     return true;
