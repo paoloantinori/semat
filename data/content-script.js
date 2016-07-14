@@ -25,7 +25,6 @@ function findFocusedElem(document) {
 // This function provides a safer way to append a HTML string into an element.
 function saferSetInnerHTML(parentElem, htmlString) {
   // Jump through some hoops to avoid using innerHTML...
-  debugger;
   console.log("parent eleme: " + parentElem);
   console.log("parent ownerDocument: " + parentElem.ownerDocument);
   var range = parentElem.ownerDocument.createRange();
@@ -35,29 +34,62 @@ function saferSetInnerHTML(parentElem, htmlString) {
   console.log("docFrag: " + docFrag);
 
   range.deleteContents();
-  console.log("docFrag: " + docFrag);
   range.insertNode(docFrag);
   range.detach();
-};
+}
+
+function getCaretPosition(editableDiv) {
+  var caretPos = 0,
+    sel, range;
+  if (window.getSelection) {
+    sel = window.getSelection();
+    if (sel.rangeCount) {
+      range = sel.getRangeAt(0);
+      if (range.commonAncestorContainer.parentNode == editableDiv) {
+        caretPos = range.endOffset;
+      }
+    }
+  } else if (document.selection && document.selection.createRange) {
+    range = document.selection.createRange();
+    if (range.parentElement() == editableDiv) {
+      var tempEl = document.createElement("span");
+      editableDiv.insertBefore(tempEl, editableDiv.firstChild);
+      var tempRange = range.duplicate();
+      tempRange.moveToElementText(tempEl);
+      tempRange.setEndPoint("EndToEnd", range);
+      caretPos = tempRange.text.length;
+    }
+  }
+  return caretPos;
+}
 
 
 self.on("click", function (node, data) {
   console.log("in click");
   var found = findFocusedElem(document);
   var scrollPos = found.scrollTop;
-  var strPos = found.selectionStart;
-  var front = (found.value).substring(0, strPos);  
-  var back = (found.value).substring(strPos, found.value.length); 
-  // found.value = front + data + back;
-  saferSetInnerHTML(found, front + data + back);
-  found.selectionStart = strPos;
-  found.selectionEnd = strPos + data.length;
+  if(found.contentEditable == "true"){
+    var strPos = getCaretPosition(found);
+    var front = (found.innerText).substring(0, strPos);  
+    var back = (found.innerText).substring(strPos, found.innerText.length); 
+    saferSetInnerHTML(found, front + data + back);
+  } else {
+    var strPos = found.selectionStart;
+    var front = (found.value).substring(0, strPos);  
+    var back = (found.value).substring(strPos, found.value.length); 
+    // found.value = front + data + back;
+    saferSetInnerHTML(found, front + data + back);
+    found.selectionStart = strPos;
+    found.selectionEnd = strPos + data.length;
+  }
+
   found.focus();
   found.scrollTop = scrollPos;
   console.log("[content script] node: " + node.innerHTML);
   console.log("[content script] strPos: " + strPos);
   console.log("[content script] data: " + data);  
   //self.postMessage([node, found]);
+  return true;
 });
 
 // self.on("context", function (node) {

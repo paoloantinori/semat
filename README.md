@@ -12,3 +12,8 @@ https://developer.mozilla.org/en-US/Add-ons/SDK/Tutorials/Getting_Started_%28jpm
 https://developer.mozilla.org/en-US/Add-ons/SDK/High-Level_APIs/context-menu#SelectionContext()  
 https://developer.mozilla.org/en-US/Add-ons/SDK/Guides/Content_Scripts  
 http://semat.org/alpha-definitions-overview/competency-cards  
+
+##### Note
+I took most of the advanced interactions from this project, so you might want to chek it!
+
+https://github.com/adam-p/markdown-here
