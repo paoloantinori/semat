@@ -36,17 +36,22 @@ function saferSetInnerHTML(parentElem, htmlString) {
   range.deleteContents();
   range.insertNode(docFrag);
   range.detach();
+  return docFrag;
 }
 
-function getCaretPosition(editableDiv) {
+function getCaretPositionAndTextNode(editableDiv) {
   var caretPos = 0,
-    sel, range;
+    sel, range, textNode;
   if (window.getSelection) {
     sel = window.getSelection();
     if (sel.rangeCount) {
       range = sel.getRangeAt(0);
       if (range.commonAncestorContainer.parentNode == editableDiv) {
         caretPos = range.endOffset;
+        textNode = range.commonAncestorContainer;
+      } else {
+        caretPos = sel.anchorOffset;
+        textNode = sel.anchorNode;
       }
     }
   } else if (document.selection && document.selection.createRange) {
@@ -58,22 +63,30 @@ function getCaretPosition(editableDiv) {
       tempRange.moveToElementText(tempEl);
       tempRange.setEndPoint("EndToEnd", range);
       caretPos = tempRange.text.length;
+      textNode = range.commonAncestorContainer;
     }
   }
-  return caretPos;
+  return {caretPos, textNode};
 }
-
 
 self.on("click", function (node, data) {
   console.log("in click");
   var found = findFocusedElem(document);
   var scrollPos = found.scrollTop;
+  // this is for gmail messages
   if(found.contentEditable == "true"){
-    var strPos = getCaretPosition(found);
-    var front = (found.innerText).substring(0, strPos);  
-    var back = (found.innerText).substring(strPos, found.innerText.length); 
-    saferSetInnerHTML(found, front + data + back);
+    // find cursor position
+    var tuple = getCaretPositionAndTextNode(found);
+    var strPos = tuple.caretPos;
+    var textNode = tuple.textNode;
+    var content = textNode.textContent;
+    var front = content.substring(0, strPos);  
+    var back = content.substring(strPos, content.length); 
+    var newNode = saferSetInnerHTML(textNode, front + data + back);
+    // found.selectionStart = strPos;
+    // found.selectionEnd = strPos + data.length;
   } else {
+    // this is for generic textareas
     var strPos = found.selectionStart;
     var front = (found.value).substring(0, strPos);  
     var back = (found.value).substring(strPos, found.value.length); 
